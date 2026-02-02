@@ -197,13 +197,35 @@ Expected output: `.env`
 
 ## Phase 3: Creative Configuration
 
-These steps are primarily for the **creative partner** (non-engineer).
+These steps involve both **Reed** (engineer) and **Brad** (creative partner).
 
-### 3.1 Customize the Show Bible
+### 3.1 Create a New Show (Reed)
 
-Open `show_bible.md` in any text editor (VS Code, Notepad, TextEdit, etc.)
+Run the new-show script to create a show folder:
 
-Edit each section to match YOUR show's identity:
+```bash
+./new-show.sh "Your Show Name"
+```
+
+This creates `Shows/your_show_name/` with:
+- `show_bible.md` - Template for show's creative guidelines
+- `creative_prompt.md` - Template for sketch ideas
+- `write.sh` - Script to run the writing system (stub for now)
+- `output/` - Folder for finished scripts
+
+**Checkpoint:**
+```bash
+ls Shows/your_show_name/
+```
+Expected output: `creative_prompt.md  output  show_bible.md  write.sh`
+
+---
+
+### 3.2 Customize the Show Bible (Brad)
+
+Open `Shows/your_show_name/show_bible.md` in any text editor (VS Code, Notepad, TextEdit, etc.)
+
+The template has `[BRACKETED TEXT]` placeholders. Replace each with your content:
 - [ ] Update "Show Identity" with your show's name and description
 - [ ] List comedy styles you want (and don't want)
 - [ ] Define content boundaries (what's off-limits)
@@ -223,23 +245,23 @@ Read through your edited `show_bible.md` and verify:
 
 ---
 
-### 3.2 Prepare Your First Creative Prompt
+### 3.3 Prepare Your First Creative Prompt (Brad)
 
-Open `creative_prompt.md` in any text editor.
+Open `Shows/your_show_name/creative_prompt.md` in any text editor.
 
-For your first test, keep it simple. Fill in:
-- [ ] A clear theme or inspiration (1-2 sentences)
-- [ ] 2-3 specific requirements (must-include elements)
-- [ ] Character types involved
-- [ ] The tone/energy you want
+The template has `[BRACKETED TEXT]` placeholders. For your first test, keep it simple. Fill in:
+- [ ] A clear theme or inspiration (1-2 sentences) - **Required**
+- [ ] 2-3 specific requirements (must-include elements) - Optional
+- [ ] Character types involved - Optional
+- [ ] The tone/energy you want - Optional
 
-Save the file when done.
+Delete any sections you don't need. Save the file when done.
 
 **Checkpoint:**
 
 Read through your edited `creative_prompt.md` and verify:
 - [ ] The core idea is clear in one sentence
-- [ ] At least 2 "must include" elements are listed
+- [ ] At least 2 "must include" elements are listed (if you have specific requirements)
 - [ ] You've described the tone (silly, dark, absurd, etc.)
 
 ---
