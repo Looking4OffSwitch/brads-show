@@ -132,13 +132,15 @@ ANTHROPIC_API_KEY=sk-ant-...
 ANTHROPIC_MODEL_CREATIVE=claude-sonnet-4-20250514
 ANTHROPIC_MODEL_SUPPORT=claude-3-5-haiku-20241022
 
+# Project Settings
+SHOW_FOLDER=test_show  # Which show folder to use from Shows/
+MAX_REVISION_CYCLES=3
+TARGET_SKETCH_LENGTH=5
+
 # Optional monitoring
 LANGCHAIN_TRACING_V2=true
 LANGCHAIN_API_KEY=ls-...
 LANGCHAIN_PROJECT=sketch-comedy-agents
-
-MAX_REVISION_CYCLES=3
-TARGET_SKETCH_LENGTH=5
 ```
 
 ## Implementation Notes

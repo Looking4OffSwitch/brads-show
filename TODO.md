@@ -287,13 +287,15 @@ Expected output: Shows `agents/`, `workflow/`, `utils/`, `cli/` directories
 
 - [ ] Create `src/utils/config.py`
   - Load `.env` file
-  - Load `show_bible.md`
-  - Load `creative_prompt.md`
+  - Read `SHOW_FOLDER` from env to determine which show to load
+  - Load `Shows/<SHOW_FOLDER>/show_bible.md`
+  - Load `Shows/<SHOW_FOLDER>/creative_prompt.md`
   - Validate all required values exist
+  - Support CLI override: `load_config(show_folder="other_show")`
 
 **Checkpoint:**
 ```bash
-python3 -c "from src.utils.config import load_config; cfg = load_config(); print('Config loaded:', 'show_bible' in cfg and 'creative_prompt' in cfg)"
+source .venv/bin/activate && python3 -c "from src.utils.config import load_config; cfg = load_config(); print('Config loaded:', 'show_bible' in cfg and 'creative_prompt' in cfg)"
 ```
 Expected output: `Config loaded: True`
 
