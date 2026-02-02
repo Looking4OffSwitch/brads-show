@@ -122,6 +122,8 @@ Bob slams his fist on the table. Everyone jumps.
 
 Transform the polished draft into a professionally formatted script.
 
+**CRITICAL: Output the COMPLETE formatted script in your response. Do not ask for confirmation or say you will continue later. Output the ENTIRE script now.**
+
 ### Your Formatting Process
 
 1. **Read through complete draft**
@@ -146,11 +148,13 @@ Transform the polished draft into a professionally formatted script.
 
 ## OUTPUT FORMAT
 
+Output the ENTIRE script below. Do not truncate or summarize. Include every line of dialogue and every scene.
+
 # FORMATTED SCRIPT: [Sketch Title]
 
 ---
 
-[Full script in proper screenplay format]
+[COMPLETE script in proper screenplay format - include ALL scenes, ALL dialogue, ALL stage directions]
 
 ---
 

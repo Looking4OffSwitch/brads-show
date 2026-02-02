@@ -20,5 +20,9 @@ Thumbs.db
 # uv
 uv.lock
 
+# Testing
+.coverage
+htmlcov/
+
 # Misc
 REED.md
