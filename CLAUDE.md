@@ -8,6 +8,44 @@ This is a multi-agent sketch comedy writing system using LangGraph and LangChain
 
 **Current Status:** Documentation and architecture specification complete; implementation code pending.
 
+## Team
+
+- **Brad** - The writer. Provides all creative material, ideas, and direction. Non-technical; works with markdown files only.
+- **Reed** - The engineer. Enters information into the system, runs the workflow, and handles all technical issues.
+
+Checkpoints involve input from both Brad and Reed together.
+
+## Multi-Project Support
+
+This system supports multiple shows/skits simultaneously. Each project lives in its own folder under `Shows/`, while sharing the same agent architecture. The folder structure and agent coordination remain consistent; only the creative content changes per project.
+
+### Creating a New Show
+
+```bash
+./new-show.sh "Show Name"
+```
+
+This creates a folder at `Shows/show_name/` with:
+- `show_bible.md` - Template for the show's creative guidelines
+- `creative_prompt.md` - Template for sketch ideas
+- `write.sh` - Script to run the writing system (stub for now)
+- `output/` - Folder for finished scripts
+
+### Folder Structure
+
+```
+brads_show/
+├── Shows/                    # All show projects live here
+│   └── <show_name>/
+│       ├── show_bible.md     # Brad edits: show's style guide
+│       ├── creative_prompt.md # Brad edits: sketch idea
+│       ├── write.sh          # Runs the writing system
+│       └── output/           # Finished scripts
+├── templates/                # Template files for new shows
+├── new-show.sh              # Creates new show folders
+└── src/                     # Agent system code (Reed's domain)
+```
+
 ## Tech Stack
 
 - **LangGraph** - Agentic workflow orchestration
@@ -42,6 +80,10 @@ pytest --cov=src tests/
 black src/ tests/
 ```
 
+## Coding requirements
+
+All code **must** adhere to modern Python software engineering practices and guidelines. The includes "don't repeat yourself (DRY)", encapsulation, abstraction, rigorous error checking, parameter validation, verbose logging to make debugging easier, and code readability and code comments.
+
 ## Architecture
 
 ### The 10 Agents
@@ -68,10 +110,18 @@ black src/ tests/
 
 ## Key Files
 
+### Brad's Files (per show)
 | File | Purpose |
 |------|---------|
-| `show_bible.md` | Show's creative guidelines (edit once at setup) |
-| `creative_prompt.md` | Per-sketch starting prompt (edit each session) |
+| `Shows/<show>/show_bible.md` | Show's creative guidelines (edit once at setup) |
+| `Shows/<show>/creative_prompt.md` | Per-sketch starting prompt (edit each session) |
+
+### System Files
+| File | Purpose |
+|------|---------|
+| `new-show.sh` | Creates new show folders with templates |
+| `HOW_TO_CREATE_A_SKIT.md` | Brad's guide for creating sketches |
+| `templates/` | Template files copied to new shows |
 | `agent-prompts.md` | Complete system prompts for all 10 agents |
 | `langgraph-workflow.md` | Detailed workflow architecture and LangGraph implementation |
 
