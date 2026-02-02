@@ -13,7 +13,7 @@ This is a multi-agent sketch comedy writing system using LangGraph and LangChain
 - **LangGraph** - Agentic workflow orchestration
 - **LangChain** - LLM integration framework
 - **Python 3.10+** - Core language
-- **OpenAI/Anthropic** - LLM providers (GPT-4 for creative, GPT-3.5-turbo for support roles)
+- **Anthropic** - LLM provider (Claude Sonnet for creative roles, Claude Haiku for support roles)
 
 ## Commands
 
@@ -78,12 +78,9 @@ black src/ tests/
 ## Environment Variables
 
 ```bash
-OPENAI_API_KEY=sk-...
-OPENAI_MODEL_CREATIVE=gpt-4
-OPENAI_MODEL_SUPPORT=gpt-3.5-turbo
-# OR
 ANTHROPIC_API_KEY=sk-ant-...
-ANTHROPIC_MODEL_CREATIVE=claude-3-5-sonnet-20241022
+ANTHROPIC_MODEL_CREATIVE=claude-sonnet-4-20250514
+ANTHROPIC_MODEL_SUPPORT=claude-3-5-haiku-20241022
 
 # Optional monitoring
 LANGCHAIN_TRACING_V2=true
@@ -101,3 +98,7 @@ TARGET_SKETCH_LENGTH=5
 - Prompts in `agent-prompts.md` include role identity, task instructions, output formats, and comedy principles
 - Human feedback uses structured markdown templates
 - Parallelization at Stage 1 (4 writers) and Stage 4 (6 reviewers) for efficiency
+
+## Development Rules
+
+- **All work must be tested before any task is considered complete.** Run relevant checkpoint tests or write new tests to verify functionality before marking implementation done.
