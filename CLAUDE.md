@@ -120,10 +120,11 @@ All code **must** adhere to modern Python software engineering practices and gui
 | File | Purpose |
 |------|---------|
 | `new-show.sh` | Creates new show folders with templates |
-| `HOW_TO_CREATE_A_SKIT.md` | Brad's guide for creating sketches |
+| `Docs/HOW_TO_CREATE_A_SKIT.md` | Brad's guide for creating sketches |
+| `Docs/TODO.md` | Step-by-step implementation guide |
+| `Docs/agent-prompts.md` | Complete system prompts for all 10 agents |
+| `Docs/langgraph-workflow.md` | Detailed workflow architecture and LangGraph implementation |
 | `templates/` | Template files copied to new shows |
-| `agent-prompts.md` | Complete system prompts for all 10 agents |
-| `langgraph-workflow.md` | Detailed workflow architecture and LangGraph implementation |
 
 ## Environment Variables
 
@@ -147,7 +148,7 @@ LANGCHAIN_PROJECT=sketch-comedy-agents
 
 - Agents communicate asynchronously via shared state (no direct agent-to-agent calls)
 - Head Writer synthesizes outputs from multiple agents
-- Prompts in `agent-prompts.md` include role identity, task instructions, output formats, and comedy principles
+- Prompts in `Docs/agent-prompts.md` include role identity, task instructions, output formats, and comedy principles
 - Human feedback uses structured markdown templates
 - Parallelization at Stage 1 (4 writers) and Stage 4 (6 reviewers) for efficiency
 
