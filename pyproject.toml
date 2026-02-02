@@ -8,6 +8,7 @@ dependencies = [
     "langchain>=0.3.0",
     "langchain-openai>=0.2.0",
     "langchain-anthropic>=0.2.0",
+    "langsmith>=0.2.0",
     "python-dotenv>=1.0.0",
     "tenacity>=8.0.0",
     "pydantic>=2.0.0",
@@ -19,9 +20,6 @@ dev = [
     "pytest-cov>=4.0.0",
     "pytest-asyncio>=0.23.0",
     "black>=24.0.0",
-]
-monitoring = [
-    "langsmith>=0.1.0",
 ]
 
 [tool.black]

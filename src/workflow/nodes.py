@@ -86,6 +86,7 @@ async def pitch_session_node(state: SketchState) -> SketchState:
         show_bible=state["show_bible"],
         creative_prompt=state["creative_prompt"],
         task_type="generate_pitches",
+        session_id=state.get("session_id"),
     )
 
     # Initialize agents
@@ -134,6 +135,7 @@ async def pitch_session_node(state: SketchState) -> SketchState:
         show_bible=state["show_bible"],
         creative_prompt=state["creative_prompt"],
         task_type="validate_pitches",
+        session_id=state.get("session_id"),
         previous_output="\n\n".join([p["content"] for p in all_pitches]),
     )
     research_result = await research.execute(research_context)
@@ -150,6 +152,7 @@ async def pitch_session_node(state: SketchState) -> SketchState:
         show_bible=state["show_bible"],
         creative_prompt=state["creative_prompt"],
         task_type="compile_pitches",
+        session_id=state.get("session_id"),
         previous_output="\n\n---\n\n".join([p["content"] for p in all_pitches]),
         additional_context={"research_notes": state.get("research_notes_pitches", {})},
     )
@@ -227,6 +230,7 @@ async def showrunner_select_node(state: SketchState) -> SketchState:
         show_bible=state["show_bible"],
         creative_prompt=state["creative_prompt"],
         task_type="select_pitch",
+        session_id=state.get("session_id"),
         previous_output="\n\n---\n\n".join(selected_content),
         direction_notes=human_notes,
     )
@@ -277,6 +281,7 @@ async def story_breaking_node(state: SketchState) -> SketchState:
     base_context = {
         "show_bible": state["show_bible"],
         "creative_prompt": state["creative_prompt"],
+        "session_id": state.get("session_id"),
         "previous_output": selected_pitch,
         "direction_notes": vision_notes,
     }
@@ -313,6 +318,7 @@ async def story_breaking_node(state: SketchState) -> SketchState:
         show_bible=state["show_bible"],
         creative_prompt=state["creative_prompt"],
         task_type="validate_beat_sheet",
+        session_id=state.get("session_id"),
         previous_output=f"""
 Selected Pitch:
 {selected_pitch}
@@ -338,6 +344,7 @@ Structural Framework:
         show_bible=state["show_bible"],
         creative_prompt=state["creative_prompt"],
         task_type="synthesize_beat_sheet",
+        session_id=state.get("session_id"),
         previous_output=f"""
 Selected Pitch:
 {selected_pitch}
@@ -420,6 +427,7 @@ async def drafting_node(state: SketchState) -> SketchState:
         show_bible=state["show_bible"],
         creative_prompt=state["creative_prompt"],
         task_type="assign_drafting",
+        session_id=state.get("session_id"),
         previous_output=beat_sheet,
         direction_notes=vision_notes,
     )
@@ -438,6 +446,7 @@ async def drafting_node(state: SketchState) -> SketchState:
     draft_context_base = {
         "show_bible": state["show_bible"],
         "creative_prompt": state["creative_prompt"],
+        "session_id": state.get("session_id"),
         "direction_notes": f"""
 Beat Sheet:
 {beat_sheet}
@@ -472,6 +481,7 @@ Section Assignments:
         show_bible=state["show_bible"],
         creative_prompt=state["creative_prompt"],
         task_type="assemble_draft",
+        session_id=state.get("session_id"),
         previous_output="\n\n---\n\n".join([s["content"] for s in drafted_sections]),
         direction_notes=f"Beat Sheet:\n{beat_sheet}",
     )
@@ -489,6 +499,7 @@ Section Assignments:
         show_bible=state["show_bible"],
         creative_prompt=state["creative_prompt"],
         task_type="review_draft",
+        session_id=state.get("session_id"),
         previous_output=state.get("first_draft", ""),
         direction_notes=f"Beat Sheet:\n{beat_sheet}",
     )
@@ -526,6 +537,7 @@ async def table_read_node(state: SketchState) -> SketchState:
     review_context_base = {
         "show_bible": state["show_bible"],
         "creative_prompt": state["creative_prompt"],
+        "session_id": state.get("session_id"),
         "previous_output": first_draft,
         "direction_notes": f"Beat Sheet:\n{beat_sheet}",
         "task_type": "table_read_review",
@@ -582,6 +594,7 @@ async def table_read_node(state: SketchState) -> SketchState:
         show_bible=state["show_bible"],
         creative_prompt=state["creative_prompt"],
         task_type="compile_issues",
+        session_id=state.get("session_id"),
         previous_output=f"""
 First Draft:
 {first_draft}
@@ -604,6 +617,7 @@ Agent Feedback:
         show_bible=state["show_bible"],
         creative_prompt=state["creative_prompt"],
         task_type="synthesize_feedback",
+        session_id=state.get("session_id"),
         previous_output=f"""
 First Draft:
 {first_draft}
@@ -656,6 +670,7 @@ async def revision_node(state: SketchState) -> SketchState:
     revision_base = {
         "show_bible": state["show_bible"],
         "creative_prompt": state["creative_prompt"],
+        "session_id": state.get("session_id"),
         "previous_output": current_draft,
         "direction_notes": f"Revision Plan:\n{revision_plan}\n\nBeat Sheet:\n{beat_sheet}",
     }
@@ -687,6 +702,7 @@ async def revision_node(state: SketchState) -> SketchState:
         show_bible=state["show_bible"],
         creative_prompt=state["creative_prompt"],
         task_type="coordinate_revision",
+        session_id=state.get("session_id"),
         previous_output=f"""
 Current Draft:
 {current_draft}
@@ -709,6 +725,7 @@ Revisions:
         show_bible=state["show_bible"],
         creative_prompt=state["creative_prompt"],
         task_type="review_draft",
+        session_id=state.get("session_id"),
         previous_output=state.get("revised_draft", ""),
     )
     review_result = await showrunner.execute(review_context)
@@ -749,6 +766,7 @@ async def polish_node(state: SketchState) -> SketchState:
         show_bible=state["show_bible"],
         creative_prompt=state["creative_prompt"],
         task_type="format_script",
+        session_id=state.get("session_id"),
         previous_output=draft,
     )
     format_result = await coordinator.execute(format_context)
@@ -780,6 +798,7 @@ async def polish_node(state: SketchState) -> SketchState:
         show_bible=state["show_bible"],
         creative_prompt=state["creative_prompt"],
         task_type="final_validation",
+        session_id=state.get("session_id"),
         previous_output=state.get("formatted_script", ""),
         direction_notes=f"Beat Sheet:\n{state.get('beat_sheet', '')}",
     )
@@ -800,6 +819,7 @@ async def polish_node(state: SketchState) -> SketchState:
         show_bible=state["show_bible"],
         creative_prompt=state["creative_prompt"],
         task_type="final_approval",
+        session_id=state.get("session_id"),
         previous_output=state.get("formatted_script", ""),
         additional_context={"qa_report": state.get("qa_report", {})},
     )

@@ -11,6 +11,30 @@ Usage:
     python run_sketch.py --help                 # Show help
 """
 
+# === CRITICAL: Initialize tracing BEFORE any LangChain imports ===
+# LangChain checks LANGCHAIN_TRACING_V2 on module import, so we must
+# load environment variables and validate tracing config first.
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+def _init_langsmith_tracing() -> None:
+    """Initialize LangSmith tracing from environment if enabled."""
+    if os.getenv("LANGCHAIN_TRACING_V2", "").lower() == "true":
+        if not os.getenv("LANGCHAIN_API_KEY"):
+            print("WARNING: LANGCHAIN_TRACING_V2=true but LANGCHAIN_API_KEY not set - tracing disabled")
+            os.environ["LANGCHAIN_TRACING_V2"] = "false"
+        else:
+            project = os.getenv("LANGCHAIN_PROJECT", "sketch-comedy-agents")
+            print(f"LangSmith tracing enabled for project: {project}")
+
+
+_init_langsmith_tracing()
+# === End tracing initialization ===
+
 import argparse
 import asyncio
 import logging
@@ -18,6 +42,11 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
+
+# Add project root to path so imports work when script is in src/
+_project_root = Path(__file__).parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
 
 from src.cli.checkpoints import handle_checkpoint, mock_checkpoint
 from src.cli.interface import (

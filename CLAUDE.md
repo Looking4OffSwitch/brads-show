@@ -6,83 +6,110 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a multi-agent sketch comedy writing system using LangGraph and LangChain. It simulates a TV writers' room with 10 specialized LLM agents collaborating through a 6-stage workflow to produce sketch comedy scripts.
 
-**Current Status:** Documentation and architecture specification complete; implementation code pending.
+**Current Status:** Fully implemented and operational.
 
 ## Team
 
-- **Brad** - The writer. Provides all creative material, ideas, and direction. Non-technical; works with markdown files only.
-- **Reed** - The engineer. Enters information into the system, runs the workflow, and handles all technical issues.
+- **Brad** - The writer. Provides all creative material, ideas, and direction. Non-technical; works with markdown files only. See `QUICK_START.md` for his guide.
+- **Reed** - The engineer. Handles setup, runs the system, troubleshoots, and monitors via LangSmith.
 
 Checkpoints involve input from both Brad and Reed together.
 
-## Multi-Project Support
+## How to Use (Quick Reference)
 
-This system supports multiple shows/skits simultaneously. Each project lives in its own folder under `Shows/`, while sharing the same agent architecture. The folder structure and agent coordination remain consistent; only the creative content changes per project.
+### For Brad (the writer)
 
-### Creating a New Show
+See `QUICK_START.md` for the full guide.
 
 ```bash
-./new-show.sh "Show Name"
+# Create a new show (one time)
+./new-show.sh "My Show Name"
+
+# Write a sketch (from show folder)
+cd Shows/my_show_name
+# 1. Edit creative_prompt.md with your idea
+# 2. Run the writers
+./write.sh
 ```
 
-This creates a folder at `Shows/show_name/` with:
-- `show_bible.md` - Template for the show's creative guidelines
-- `creative_prompt.md` - Template for sketch ideas
-- `write.sh` - Script to run the writing system (stub for now)
-- `output/` - Folder for finished scripts
+### For Reed (the engineer)
 
-### Folder Structure
+```bash
+# Setup (one time)
+uv sync --extra dev
+cp .env.example .env
+# Edit .env with your ANTHROPIC_API_KEY
+
+# Enable LangSmith tracing (optional but recommended)
+# In .env, set:
+#   LANGCHAIN_TRACING_V2=true
+#   LANGCHAIN_API_KEY=<from smith.langchain.com>
+
+# Run tests
+pytest
+
+# Run a show's write.sh for Brad
+./Shows/silicon_silly/write.sh
+
+# Test without human checkpoints
+./Shows/test_show/write.sh --mock-checkpoints
+```
+
+## Folder Structure
 
 ```
 brads_show/
-├── Shows/                    # All show projects live here
+├── Shows/                    # All shows live here
 │   └── <show_name>/
-│       ├── show_bible.md     # Brad edits: show's style guide
-│       ├── creative_prompt.md # Brad edits: sketch idea
-│       ├── write.sh          # Runs the writing system
+│       ├── show_bible.md     # Show's style guide (edit once)
+│       ├── creative_prompt.md # Sketch idea (edit each time)
+│       ├── write.sh          <- ENTRY POINT for writing
 │       └── output/           # Finished scripts
-├── templates/                # Template files for new shows
-├── new-show.sh              # Creates new show folders
-└── src/                     # Agent system code (Reed's domain)
+├── new-show.sh              <- Creates new shows
+├── QUICK_START.md           <- Brad's guide
+├── src/                     # Agent code (Reed's domain)
+└── tests/                   # Test suite
 ```
+
+## Entry Points
+
+| Who | Command | Purpose |
+|-----|---------|---------|
+| Brad | `./new-show.sh "Name"` | Create a new show |
+| Brad | `./Shows/<show>/write.sh` | Write a sketch |
+| Reed | `pytest` | Run tests |
+
+**Note:** The underlying Python script (`src/run_sketch.py`) is called by `write.sh` automatically.
 
 ## Tech Stack
 
 - **LangGraph** - Agentic workflow orchestration
 - **LangChain** - LLM integration framework
+- **LangSmith** - Observability and tracing
 - **Python 3.10+** - Core language
-- **Anthropic** - LLM provider (Claude Sonnet for creative roles, Claude Haiku for support roles)
+- **Anthropic Claude** - LLM provider (Sonnet for creative, Haiku for support)
 
 ## Commands
 
 ```bash
 # Setup
-uv venv
-source .venv/bin/activate
-uv sync
-
-# Run workflow
-python run_sketch.py
-python run_sketch.py --session "sketch_001"
-python run_sketch.py --debug
-python run_sketch.py --stage pitch_session --mock-checkpoints
-
-# Verify setup
-python verify_setup.py
+uv sync --extra dev
 
 # Testing
 pytest
-pytest tests/test_agents.py
-pytest tests/test_workflow.py
+pytest tests/test_agents.py -v
 pytest --cov=src tests/
 
 # Formatting
 black src/ tests/
+
+# Validate config without running
+./Shows/test_show/write.sh --dry-run
 ```
 
-## Coding requirements
+## Coding Requirements
 
-All code **must** adhere to modern Python software engineering practices and guidelines. The includes "don't repeat yourself (DRY)", encapsulation, abstraction, rigorous error checking, parameter validation, verbose logging to make debugging easier, and code readability and code comments.
+All code **must** adhere to modern Python software engineering practices: DRY, encapsulation, abstraction, rigorous error checking, parameter validation, verbose logging, and code readability.
 
 ## Architecture
 
@@ -113,45 +140,48 @@ All code **must** adhere to modern Python software engineering practices and gui
 ### Brad's Files (per show)
 | File | Purpose |
 |------|---------|
-| `Shows/<show>/show_bible.md` | Show's creative guidelines (edit once at setup) |
-| `Shows/<show>/creative_prompt.md` | Per-sketch starting prompt (edit each session) |
+| `Shows/<show>/show_bible.md` | Show's creative guidelines (edit once) |
+| `Shows/<show>/creative_prompt.md` | Sketch idea (edit each session) |
+| `Shows/<show>/write.sh` | Run the AI writers |
 
 ### System Files
 | File | Purpose |
 |------|---------|
-| `new-show.sh` | Creates new show folders with templates |
-| `Docs/HOW_TO_CREATE_A_SKIT.md` | Brad's guide for creating sketches |
-| `Docs/TODO.md` | Step-by-step implementation guide |
-| `Docs/agent-prompts.md` | Complete system prompts for all 10 agents |
-| `Docs/langgraph-workflow.md` | Detailed workflow architecture and LangGraph implementation |
-| `templates/` | Template files copied to new shows |
+| `QUICK_START.md` | Brad's quick start guide |
+| `new-show.sh` | Creates new show folders |
+| `Docs/agent-prompts.md` | System prompts for all 10 agents |
+| `Docs/langgraph-workflow.md` | Workflow architecture details |
 
 ## Environment Variables
 
 ```bash
+# Required
 ANTHROPIC_API_KEY=sk-ant-...
+
+# Optional: Model overrides
 ANTHROPIC_MODEL_CREATIVE=claude-sonnet-4-20250514
 ANTHROPIC_MODEL_SUPPORT=claude-3-5-haiku-20241022
 
-# Project Settings
-SHOW_FOLDER=test_show  # Which show folder to use from Shows/
+# Optional: Workflow settings
 MAX_REVISION_CYCLES=3
 TARGET_SKETCH_LENGTH=5
 
-# Optional monitoring
+# Optional: LangSmith tracing (recommended for debugging)
 LANGCHAIN_TRACING_V2=true
 LANGCHAIN_API_KEY=ls-...
 LANGCHAIN_PROJECT=sketch-comedy-agents
 ```
 
-## Implementation Notes
+## LangSmith Tracing
 
-- Agents communicate asynchronously via shared state (no direct agent-to-agent calls)
-- Head Writer synthesizes outputs from multiple agents
-- Prompts in `Docs/agent-prompts.md` include role identity, task instructions, output formats, and comedy principles
-- Human feedback uses structured markdown templates
-- Parallelization at Stage 1 (4 writers) and Stage 4 (6 reviewers) for efficiency
+When enabled, all LLM calls are traced with:
+- **Agent identification** (which of the 10 agents made the call)
+- **Task type** (generate_pitches, review_draft, etc.)
+- **Session ID** (groups all calls for one sketch)
+- **Token usage** and latency
+
+View traces at https://smith.langchain.com
 
 ## Development Rules
 
-- **All work must be tested before any task is considered complete.** Run relevant checkpoint tests or write new tests to verify functionality before marking implementation done.
+- **All work must be tested before any task is considered complete.** Run relevant tests or write new tests to verify functionality.

@@ -133,6 +133,10 @@ class LLMInterface(ABC):
         self,
         messages: list[BaseMessage],
         tier: ModelTier = ModelTier.CREATIVE,
+        *,
+        run_name: Optional[str] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
     ) -> LLMResponse:
         """
         Make async LLM call with messages.
@@ -140,6 +144,9 @@ class LLMInterface(ABC):
         Args:
             messages: List of LangChain messages.
             tier: Model tier to use.
+            run_name: Optional name for this run in LangSmith tracing.
+            tags: Optional tags for filtering in LangSmith.
+            metadata: Optional key-value metadata for the trace.
 
         Returns:
             LLMResponse with content and usage metadata.
@@ -150,6 +157,10 @@ class LLMInterface(ABC):
         self,
         messages: list[BaseMessage],
         tier: ModelTier = ModelTier.CREATIVE,
+        *,
+        run_name: Optional[str] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
     ) -> LLMResponse:
         """
         Make sync LLM call with messages.
@@ -157,11 +168,16 @@ class LLMInterface(ABC):
         Args:
             messages: List of LangChain messages.
             tier: Model tier to use.
+            run_name: Optional name for this run in LangSmith tracing.
+            tags: Optional tags for filtering in LangSmith.
+            metadata: Optional key-value metadata for the trace.
 
         Returns:
             LLMResponse with content and usage metadata.
         """
-        return asyncio.run(self.acall(messages, tier))
+        return asyncio.run(
+            self.acall(messages, tier, run_name=run_name, tags=tags, metadata=metadata)
+        )
 
     def get_usage(self) -> TokenUsage:
         """Get current token usage statistics."""
@@ -223,6 +239,10 @@ class AnthropicLLM(LLMInterface):
         self,
         messages: list[BaseMessage],
         tier: ModelTier = ModelTier.CREATIVE,
+        *,
+        run_name: Optional[str] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
     ) -> LLMResponse:
         """
         Make async call to Anthropic Claude.
@@ -230,6 +250,9 @@ class AnthropicLLM(LLMInterface):
         Args:
             messages: List of LangChain messages.
             tier: Model tier to use.
+            run_name: Optional name for this run in LangSmith tracing.
+            tags: Optional tags for filtering in LangSmith.
+            metadata: Optional key-value metadata for the trace.
 
         Returns:
             LLMResponse with content and usage metadata.
@@ -245,7 +268,27 @@ class AnthropicLLM(LLMInterface):
             "Calling Anthropic %s with %d messages", model_name, len(messages)
         )
 
-        response = await model.ainvoke(messages)
+        # Build config for LangSmith tracing
+        invoke_config: dict[str, Any] = {}
+        if run_name:
+            invoke_config["run_name"] = run_name
+        if tags:
+            invoke_config["tags"] = tags
+        if metadata:
+            invoke_config["metadata"] = metadata
+
+        # Add model info to metadata for tracing
+        if invoke_config:
+            if "metadata" not in invoke_config:
+                invoke_config["metadata"] = {}
+            invoke_config["metadata"]["model_tier"] = tier.value
+            invoke_config["metadata"]["model_name"] = model_name
+
+        # Make the call with or without config
+        if invoke_config:
+            response = await model.ainvoke(messages, config=invoke_config)
+        else:
+            response = await model.ainvoke(messages)
 
         # Extract token usage from response metadata
         usage_metadata = getattr(response, "usage_metadata", {}) or {}
@@ -323,6 +366,10 @@ class OpenAILLM(LLMInterface):
         self,
         messages: list[BaseMessage],
         tier: ModelTier = ModelTier.CREATIVE,
+        *,
+        run_name: Optional[str] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
     ) -> LLMResponse:
         """
         Make async call to OpenAI GPT.
@@ -330,6 +377,9 @@ class OpenAILLM(LLMInterface):
         Args:
             messages: List of LangChain messages.
             tier: Model tier to use.
+            run_name: Optional name for this run in LangSmith tracing.
+            tags: Optional tags for filtering in LangSmith.
+            metadata: Optional key-value metadata for the trace.
 
         Returns:
             LLMResponse with content and usage metadata.
@@ -343,7 +393,27 @@ class OpenAILLM(LLMInterface):
 
         logger.debug("Calling OpenAI %s with %d messages", model_name, len(messages))
 
-        response = await model.ainvoke(messages)
+        # Build config for LangSmith tracing
+        invoke_config: dict[str, Any] = {}
+        if run_name:
+            invoke_config["run_name"] = run_name
+        if tags:
+            invoke_config["tags"] = tags
+        if metadata:
+            invoke_config["metadata"] = metadata
+
+        # Add model info to metadata for tracing
+        if invoke_config:
+            if "metadata" not in invoke_config:
+                invoke_config["metadata"] = {}
+            invoke_config["metadata"]["model_tier"] = tier.value
+            invoke_config["metadata"]["model_name"] = model_name
+
+        # Make the call with or without config
+        if invoke_config:
+            response = await model.ainvoke(messages, config=invoke_config)
+        else:
+            response = await model.ainvoke(messages)
 
         # Extract token usage from response metadata
         usage_metadata = getattr(response, "usage_metadata", {}) or {}

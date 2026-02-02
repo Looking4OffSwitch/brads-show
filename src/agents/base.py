@@ -69,6 +69,7 @@ class AgentContext:
     show_bible: str
     creative_prompt: str
     task_type: str
+    session_id: Optional[str] = None
     previous_output: Optional[str] = None
     direction_notes: Optional[str] = None
     additional_context: Optional[dict[str, Any]] = None
@@ -266,8 +267,23 @@ class BaseAgent(ABC):
             # Create messages
             messages = create_messages(system_prompt, user_prompt)
 
-            # Make LLM call
-            response = await self.llm.acall(messages, tier=self.model_tier)
+            # Make LLM call with tracing metadata
+            response = await self.llm.acall(
+                messages,
+                tier=self.model_tier,
+                run_name=f"{self.role.value}:{context.task_type}",
+                tags=[
+                    f"agent:{self.role.value}",
+                    f"task:{context.task_type}",
+                    f"tier:{self.model_tier.value}",
+                ],
+                metadata={
+                    "agent_name": self.name,
+                    "agent_role": self.role.value,
+                    "task_type": context.task_type,
+                    "session_id": context.session_id or "unknown",
+                },
+            )
 
             logger.info(
                 "%s agent completed: %d chars, %d tokens",

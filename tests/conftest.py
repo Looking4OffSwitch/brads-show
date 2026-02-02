@@ -269,16 +269,23 @@ class MockLLMInterface(LLMInterface):
         self,
         messages: list,
         tier: ModelTier = ModelTier.CREATIVE,
+        *,
+        run_name: str | None = None,
+        tags: list[str] | None = None,
+        metadata: dict | None = None,
     ) -> LLMResponse:
         """
         Mock async LLM call.
 
         Records call history and returns queued or default response.
         """
-        # Record call
+        # Record call including tracing metadata
         self.call_history.append({
             "messages": messages,
             "tier": tier,
+            "run_name": run_name,
+            "tags": tags,
+            "metadata": metadata,
         })
 
         # Get response
