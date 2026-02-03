@@ -28,4 +28,6 @@ htmlcov/
 REED.md
 
 # Show outputs (test data, not source controlled)
-Shows/
+# Keep Shows/ directory but exclude all content
+Shows/*
+!Shows/.gitkeep
