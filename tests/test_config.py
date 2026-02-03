@@ -162,8 +162,12 @@ class TestShowConfig:
 class TestLoadConfig:
     """Tests for load_config function."""
 
-    def test_load_config_from_temp_dir(self, temp_project_dir: Path):
+    def test_load_config_from_temp_dir(self, temp_project_dir: Path, monkeypatch):
         """Test loading configuration from temporary directory."""
+        # Set environment variables for the test
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-12345")
+        monkeypatch.setenv("SHOW_FOLDER", "test_show")
+
         # Change to temp dir and load config
         original_cwd = os.getcwd()
         try:
@@ -177,8 +181,11 @@ class TestLoadConfig:
         finally:
             os.chdir(original_cwd)
 
-    def test_load_config_with_show_folder_override(self, temp_project_dir: Path):
+    def test_load_config_with_show_folder_override(self, temp_project_dir: Path, monkeypatch):
         """Test loading config with show_folder parameter override."""
+        # Set environment variables for the test
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-12345")
+
         original_cwd = os.getcwd()
         try:
             os.chdir(temp_project_dir)
@@ -187,12 +194,15 @@ class TestLoadConfig:
         finally:
             os.chdir(original_cwd)
 
-    def test_load_config_nonexistent_show_raises_error(self, temp_project_dir: Path):
+    def test_load_config_nonexistent_show_raises_error(self, temp_project_dir: Path, monkeypatch):
         """Test that nonexistent show folder raises error."""
+        # Set environment variables for the test
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-12345")
+
         original_cwd = os.getcwd()
         try:
             os.chdir(temp_project_dir)
-            with pytest.raises(ConfigurationError, match="not found"):
+            with pytest.raises(ConfigurationError, match="Show folder not found"):
                 load_config(show_folder="nonexistent_show")
         finally:
             os.chdir(original_cwd)
@@ -223,8 +233,11 @@ class TestLoadConfig:
                         if v is not None:
                             os.environ[k] = v
 
-    def test_load_config_debug_mode(self, temp_project_dir: Path):
+    def test_load_config_debug_mode(self, temp_project_dir: Path, monkeypatch):
         """Test loading config with debug mode enabled."""
+        # Set environment variables for the test
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-12345")
+
         original_cwd = os.getcwd()
         try:
             os.chdir(temp_project_dir)

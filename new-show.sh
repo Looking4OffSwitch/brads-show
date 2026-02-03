@@ -57,9 +57,18 @@ cp "$TEMPLATES_DIR/write_template.sh" "$SHOW_DIR/write.sh"
 chmod +x "$SHOW_DIR/write.sh"
 
 # Replace placeholder in files with actual show name
-sed -i "s/{{SHOW_NAME}}/$SHOW_NAME/g" "$SHOW_DIR/show_bible.md"
-sed -i "s/{{SHOW_NAME}}/$SHOW_NAME/g" "$SHOW_DIR/write.sh"
-sed -i "s/{{SANITIZED_NAME}}/$SANITIZED_NAME/g" "$SHOW_DIR/write.sh"
+# Use portable sed syntax that works on both macOS and Linux
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS requires empty string argument for in-place edit
+    sed -i "" "s/{{SHOW_NAME}}/$SHOW_NAME/g" "$SHOW_DIR/show_bible.md"
+    sed -i "" "s/{{SHOW_NAME}}/$SHOW_NAME/g" "$SHOW_DIR/write.sh"
+    sed -i "" "s/{{SANITIZED_NAME}}/$SANITIZED_NAME/g" "$SHOW_DIR/write.sh"
+else
+    # Linux uses -i without argument
+    sed -i "s/{{SHOW_NAME}}/$SHOW_NAME/g" "$SHOW_DIR/show_bible.md"
+    sed -i "s/{{SHOW_NAME}}/$SHOW_NAME/g" "$SHOW_DIR/write.sh"
+    sed -i "s/{{SANITIZED_NAME}}/$SANITIZED_NAME/g" "$SHOW_DIR/write.sh"
+fi
 
 echo "Show created successfully!"
 echo ""
