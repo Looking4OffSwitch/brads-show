@@ -438,7 +438,9 @@ def update_token_usage(
     Returns:
         Updated state with token usage added.
     """
-    usage = state.get("token_usage", {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0})
+    usage = state.get(
+        "token_usage", {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+    )
 
     new_usage = {
         "prompt_tokens": usage["prompt_tokens"] + prompt_tokens,

@@ -36,7 +36,6 @@ from src.agents import (
 from src.utils.config import Config
 from src.utils.llm import LLMResponse, ModelTier
 
-
 # =============================================================================
 # AGENT ROLE TESTS
 # =============================================================================
@@ -595,6 +594,7 @@ class TestAgentExecution:
     @pytest.mark.asyncio
     async def test_execute_failure_returns_error(self, mock_config: Config, mock_llm):
         """Test that execution failures return error output."""
+
         # Make LLM raise an exception
         async def raise_error(*args, **kwargs):
             raise Exception("API Error: Rate limited")
@@ -617,10 +617,12 @@ class TestAgentExecution:
     @pytest.mark.asyncio
     async def test_multiple_agent_executions(self, mock_config: Config, mock_llm):
         """Test executing multiple agents in sequence."""
-        mock_llm.set_responses([
-            "Pitch from Staff Writer A",
-            "Structure from Staff Writer B",
-        ])
+        mock_llm.set_responses(
+            [
+                "Pitch from Staff Writer A",
+                "Structure from Staff Writer B",
+            ]
+        )
 
         agent_a = StaffWriterA(mock_config, mock_llm)
         agent_b = StaffWriterB(mock_config, mock_llm)

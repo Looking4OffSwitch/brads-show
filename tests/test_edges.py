@@ -22,7 +22,6 @@ from src.workflow.edges import (
 )
 from src.workflow.state import SketchState, create_initial_state
 
-
 # =============================================================================
 # SHOULD REVISE BEAT SHEET TESTS
 # =============================================================================

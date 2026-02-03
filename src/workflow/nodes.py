@@ -114,17 +114,21 @@ async def pitch_session_node(state: SketchState) -> SketchState:
             state = add_error(state, str(result), f"pitch_session:{agent_name}")
         elif result.success:
             pitch_id = f"pitch_{uuid.uuid4().hex[:8]}"
-            all_pitches.append({
-                "id": pitch_id,
-                "agent": agent_name,
-                "content": result.content,
-                "raw": True,  # Not yet parsed
-            })
+            all_pitches.append(
+                {
+                    "id": pitch_id,
+                    "agent": agent_name,
+                    "content": result.content,
+                    "raw": True,  # Not yet parsed
+                }
+            )
             state = _update_tokens_from_output(state, result)
             logger.info("Received pitches from %s", agent_name)
         else:
             logger.error("Agent %s failed: %s", agent_name, result.error_message)
-            state = add_error(state, result.error_message or "Unknown error", f"pitch_session:{agent_name}")
+            state = add_error(
+                state, result.error_message or "Unknown error", f"pitch_session:{agent_name}"
+            )
 
     state["pitches"] = all_pitches
 
@@ -143,7 +147,9 @@ async def pitch_session_node(state: SketchState) -> SketchState:
         state["research_notes_pitches"] = {"content": research_result.content}
         state = _update_tokens_from_output(state, research_result)
     else:
-        state = add_error(state, research_result.error_message or "Research failed", "pitch_session:research")
+        state = add_error(
+            state, research_result.error_message or "Research failed", "pitch_session:research"
+        )
 
     # Head Writer compiles pitches
     logger.info("Head Writer compiling pitches...")
@@ -161,7 +167,9 @@ async def pitch_session_node(state: SketchState) -> SketchState:
         state["compiled_pitches"] = compile_result.content
         state = _update_tokens_from_output(state, compile_result)
     else:
-        state = add_error(state, compile_result.error_message or "Compilation failed", "pitch_session:compile")
+        state = add_error(
+            state, compile_result.error_message or "Compilation failed", "pitch_session:compile"
+        )
 
     logger.info("Pitch session complete. %d pitches generated.", len(all_pitches))
     return state
@@ -309,7 +317,9 @@ async def story_breaking_node(state: SketchState) -> SketchState:
             state = _update_tokens_from_output(state, result)
             logger.info("Received contribution from %s", agent_names[i])
         else:
-            state = add_error(state, result.error_message or "Unknown error", f"story_breaking:{agent_names[i]}")
+            state = add_error(
+                state, result.error_message or "Unknown error", f"story_breaking:{agent_names[i]}"
+            )
 
     # Story Editor validates
     logger.info("Story Editor validating structure...")
@@ -335,7 +345,11 @@ Structural Framework:
         state["story_editor_validation"] = {"content": validation_result.content}
         state = _update_tokens_from_output(state, validation_result)
     else:
-        state = add_error(state, validation_result.error_message or "Validation failed", "story_breaking:validation")
+        state = add_error(
+            state,
+            validation_result.error_message or "Validation failed",
+            "story_breaking:validation",
+        )
 
     # Head Writer synthesizes beat sheet
     logger.info("Head Writer synthesizing beat sheet...")
@@ -374,7 +388,9 @@ Story Editor Validation:
         state = _update_tokens_from_output(state, synthesis_result)
         logger.info("Beat sheet synthesized successfully")
     else:
-        state = add_error(state, synthesis_result.error_message or "Synthesis failed", "story_breaking:synthesis")
+        state = add_error(
+            state, synthesis_result.error_message or "Synthesis failed", "story_breaking:synthesis"
+        )
 
     return state
 
@@ -436,7 +452,9 @@ async def drafting_node(state: SketchState) -> SketchState:
         state["section_assignments"] = {"content": assignment_result.content}
         state = _update_tokens_from_output(state, assignment_result)
     else:
-        state = add_error(state, assignment_result.error_message or "Assignment failed", "drafting:assignment")
+        state = add_error(
+            state, assignment_result.error_message or "Assignment failed", "drafting:assignment"
+        )
 
     # Senior Writers draft sections in parallel
     logger.info("Senior Writers drafting sections in parallel...")
@@ -457,8 +475,20 @@ Section Assignments:
     }
 
     draft_results = await asyncio.gather(
-        senior_a.execute(AgentContext(**draft_context_base, task_type="draft_section", previous_output="Draft opening and character-heavy sections")),
-        senior_b.execute(AgentContext(**draft_context_base, task_type="draft_section", previous_output="Draft dialogue-intensive sections")),
+        senior_a.execute(
+            AgentContext(
+                **draft_context_base,
+                task_type="draft_section",
+                previous_output="Draft opening and character-heavy sections",
+            )
+        ),
+        senior_b.execute(
+            AgentContext(
+                **draft_context_base,
+                task_type="draft_section",
+                previous_output="Draft dialogue-intensive sections",
+            )
+        ),
         return_exceptions=True,
     )
 
@@ -490,7 +520,9 @@ Section Assignments:
         state["first_draft"] = assemble_result.content
         state = _update_tokens_from_output(state, assemble_result)
     else:
-        state = add_error(state, assemble_result.error_message or "Assembly failed", "drafting:assembly")
+        state = add_error(
+            state, assemble_result.error_message or "Assembly failed", "drafting:assembly"
+        )
 
     # Showrunner reviews draft
     logger.info("Showrunner reviewing first draft...")
@@ -508,7 +540,9 @@ Section Assignments:
         state["showrunner_draft_notes"] = review_result.content
         state = _update_tokens_from_output(state, review_result)
     else:
-        state = add_error(state, review_result.error_message or "Review failed", "drafting:showrunner_review")
+        state = add_error(
+            state, review_result.error_message or "Review failed", "drafting:showrunner_review"
+        )
 
     logger.info("First draft complete")
     return state
@@ -569,7 +603,13 @@ async def table_read_node(state: SketchState) -> SketchState:
     )
 
     # Collect feedback
-    agent_names = ["Senior Writer A", "Senior Writer B", "Staff Writer A", "Staff Writer B", "Research"]
+    agent_names = [
+        "Senior Writer A",
+        "Senior Writer B",
+        "Staff Writer A",
+        "Staff Writer B",
+        "Research",
+    ]
     focus_areas = ["Character", "Jokes", "Energy", "Structure", "Facts"]
 
     feedback_list = []
@@ -577,14 +617,18 @@ async def table_read_node(state: SketchState) -> SketchState:
         if isinstance(result, Exception):
             state = add_error(state, str(result), f"table_read:{agent_names[i]}")
         elif result.success:
-            feedback_list.append({
-                "agent": agent_names[i],
-                "focus_area": focus_areas[i],
-                "content": result.content,
-            })
+            feedback_list.append(
+                {
+                    "agent": agent_names[i],
+                    "focus_area": focus_areas[i],
+                    "content": result.content,
+                }
+            )
             state = _update_tokens_from_output(state, result)
         else:
-            state = add_error(state, result.error_message or "Review failed", f"table_read:{agent_names[i]}")
+            state = add_error(
+                state, result.error_message or "Review failed", f"table_read:{agent_names[i]}"
+            )
 
     state["table_read_feedback"] = feedback_list
 
@@ -608,7 +652,9 @@ Agent Feedback:
         state["story_editor_report"] = compile_result.content
         state = _update_tokens_from_output(state, compile_result)
     else:
-        state = add_error(state, compile_result.error_message or "Compilation failed", "table_read:compile")
+        state = add_error(
+            state, compile_result.error_message or "Compilation failed", "table_read:compile"
+        )
 
     # Head Writer creates revision plan
     logger.info("Head Writer creating revision plan...")
@@ -716,7 +762,9 @@ Revisions:
         state["revised_draft"] = integrate_result.content
         state = _update_tokens_from_output(state, integrate_result)
     else:
-        state = add_error(state, integrate_result.error_message or "Integration failed", "revision:integrate")
+        state = add_error(
+            state, integrate_result.error_message or "Integration failed", "revision:integrate"
+        )
 
     # Showrunner reviews revision
     logger.info("Showrunner reviewing revision...")
@@ -731,10 +779,14 @@ Revisions:
     review_result = await showrunner.execute(review_context)
     if review_result.success:
         # Check if approved (simplified - real implementation would parse response)
-        state["showrunner_revision_approved"] = "approved" in review_result.content.lower() or "strong" in review_result.content.lower()
+        state["showrunner_revision_approved"] = (
+            "approved" in review_result.content.lower() or "strong" in review_result.content.lower()
+        )
         state = _update_tokens_from_output(state, review_result)
     else:
-        state = add_error(state, review_result.error_message or "Review failed", "revision:showrunner")
+        state = add_error(
+            state, review_result.error_message or "Review failed", "revision:showrunner"
+        )
 
     logger.info("Revision cycle %d complete", state["iteration_count"])
     return state
@@ -786,7 +838,9 @@ async def polish_node(state: SketchState) -> SketchState:
             state["formatted_script"] = formatted
         state = _update_tokens_from_output(state, format_result)
     else:
-        state = add_error(state, format_result.error_message or "Formatting failed", "polish:format")
+        state = add_error(
+            state, format_result.error_message or "Formatting failed", "polish:format"
+        )
         # Fall back to draft on formatting error
         state["formatted_script"] = draft
         state["formatting_note"] = "Draft used as formatted script (formatting error)"
@@ -828,7 +882,9 @@ async def polish_node(state: SketchState) -> SketchState:
         state["showrunner_final_review"] = final_result.content
         state = _update_tokens_from_output(state, final_result)
     else:
-        state = add_error(state, final_result.error_message or "Final review failed", "polish:final")
+        state = add_error(
+            state, final_result.error_message or "Final review failed", "polish:final"
+        )
 
     logger.info("Polish complete")
     return state

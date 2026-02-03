@@ -26,7 +26,6 @@ from src.workflow.state import (
 )
 from src.utils.config import Config
 
-
 # =============================================================================
 # GRAPH CONSTRUCTION TESTS
 # =============================================================================
@@ -334,6 +333,7 @@ class TestComprehensiveWorkflow:
             polish_node,
             human_final_review_node,
         )
+
         # All imports successful
         assert True
 

@@ -25,7 +25,9 @@ def _init_langsmith_tracing() -> None:
     """Initialize LangSmith tracing from environment if enabled."""
     if os.getenv("LANGCHAIN_TRACING_V2", "").lower() == "true":
         if not os.getenv("LANGCHAIN_API_KEY"):
-            print("WARNING: LANGCHAIN_TRACING_V2=true but LANGCHAIN_API_KEY not set - tracing disabled")
+            print(
+                "WARNING: LANGCHAIN_TRACING_V2=true but LANGCHAIN_API_KEY not set - tracing disabled"
+            )
             os.environ["LANGCHAIN_TRACING_V2"] = "false"
         else:
             project = os.getenv("LANGCHAIN_PROJECT", "sketch-comedy-agents")
@@ -168,7 +170,12 @@ def save_output(
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
     # Save final script
-    final_script = state.get("final_script") or state.get("formatted_script") or state.get("revised_draft") or state.get("first_draft", "")
+    final_script = (
+        state.get("final_script")
+        or state.get("formatted_script")
+        or state.get("revised_draft")
+        or state.get("first_draft", "")
+    )
     script_path = output_dir / f"{session_id}_{timestamp}_FINAL.txt"
 
     if final_script:
@@ -272,7 +279,11 @@ async def run_workflow(
                     current_state = {**current_state, **node_output}
 
                     # Mock checkpoints
-                    if node_name in ["human_pitch_review", "human_beat_review", "human_final_review"]:
+                    if node_name in [
+                        "human_pitch_review",
+                        "human_beat_review",
+                        "human_final_review",
+                    ]:
                         mock_updates = mock_checkpoint(current_state, node_name)
                         current_state = {**current_state, **mock_updates}
 

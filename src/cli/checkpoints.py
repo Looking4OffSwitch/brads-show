@@ -73,9 +73,7 @@ def handle_pitch_review(state: SketchState) -> dict[str, Any]:
     # Prompt for selection
     display_info("Select 1-3 pitches to develop (the Showrunner will make final selection)")
 
-    pitch_options = [
-        f"Pitch #{i+1}: {p.get('agent', 'Unknown')}" for i, p in enumerate(pitches)
-    ]
+    pitch_options = [f"Pitch #{i+1}: {p.get('agent', 'Unknown')}" for i, p in enumerate(pitches)]
 
     selected_indices = prompt_selection(
         "Which pitches would you like to develop?",
@@ -306,7 +304,9 @@ def mock_beat_review(
     """
     return {
         "human_beat_sheet_approval": approve,
-        "human_beat_sheet_notes": "Mocked: Auto-approved for testing" if approve else "Mocked: Needs revision",
+        "human_beat_sheet_notes": (
+            "Mocked: Auto-approved for testing" if approve else "Mocked: Needs revision"
+        ),
     }
 
 
@@ -326,7 +326,9 @@ def mock_final_review(
     """
     return {
         "human_final_approval": approve,
-        "human_final_notes": "Mocked: Auto-approved for testing" if approve else "Mocked: Needs revision",
+        "human_final_notes": (
+            "Mocked: Auto-approved for testing" if approve else "Mocked: Needs revision"
+        ),
     }
 
 

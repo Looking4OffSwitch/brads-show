@@ -47,9 +47,7 @@ class TokenUsage:
     total_tokens: int = 0
     call_count: int = 0
 
-    def add(
-        self, prompt_tokens: int, completion_tokens: int, total_tokens: int
-    ) -> None:
+    def add(self, prompt_tokens: int, completion_tokens: int, total_tokens: int) -> None:
         """
         Add token counts from a single LLM call.
 
@@ -259,14 +257,10 @@ class AnthropicLLM(LLMInterface):
         """
         model = self.get_model(tier)
         model_name = (
-            self.config.creative_model
-            if tier == ModelTier.CREATIVE
-            else self.config.support_model
+            self.config.creative_model if tier == ModelTier.CREATIVE else self.config.support_model
         )
 
-        logger.debug(
-            "Calling Anthropic %s with %d messages", model_name, len(messages)
-        )
+        logger.debug("Calling Anthropic %s with %d messages", model_name, len(messages))
 
         # Build config for LangSmith tracing
         invoke_config: dict[str, Any] = {}
@@ -386,9 +380,7 @@ class OpenAILLM(LLMInterface):
         """
         model = self.get_model(tier)
         model_name = (
-            self.config.creative_model
-            if tier == ModelTier.CREATIVE
-            else self.config.support_model
+            self.config.creative_model if tier == ModelTier.CREATIVE else self.config.support_model
         )
 
         logger.debug("Calling OpenAI %s with %d messages", model_name, len(messages))

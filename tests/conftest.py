@@ -20,7 +20,6 @@ from src.utils.config import Config, LLMConfig, ShowConfig, WorkflowConfig
 from src.utils.llm import LLMInterface, LLMResponse, ModelTier, TokenUsage
 from src.workflow.state import SketchState, create_initial_state
 
-
 # =============================================================================
 # SAMPLE DATA
 # =============================================================================
@@ -280,13 +279,15 @@ class MockLLMInterface(LLMInterface):
         Records call history and returns queued or default response.
         """
         # Record call including tracing metadata
-        self.call_history.append({
-            "messages": messages,
-            "tier": tier,
-            "run_name": run_name,
-            "tags": tags,
-            "metadata": metadata,
-        })
+        self.call_history.append(
+            {
+                "messages": messages,
+                "tier": tier,
+                "run_name": run_name,
+                "tags": tags,
+                "metadata": metadata,
+            }
+        )
 
         # Get response
         if self.response_queue:
@@ -483,5 +484,6 @@ def patch_get_llm(mock_llm: MockLLMInterface):
 def reset_logging():
     """Reset logging configuration between tests."""
     import logging
+
     logging.getLogger().handlers = []
     yield
