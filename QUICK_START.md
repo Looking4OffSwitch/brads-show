@@ -90,9 +90,9 @@ At each checkpoint, you'll see the content and be asked to approve or provide no
 ### Step 4: Get Your Script
 
 When complete, your script appears in `Shows/your_show/output/` with:
-- `*_FINAL.txt` - The finished script
-- `*_beat_sheet.txt` - The structural outline
-- `*_QA_report.txt` - Quality notes
+- `script.txt` - The finished script
+- `beat_sheet.txt` - The structural outline
+- `qa_report.txt` - Quality notes
 
 ---
 

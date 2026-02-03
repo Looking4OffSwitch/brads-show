@@ -336,14 +336,24 @@ black --check src/ tests/
 black src/ tests/
 ```
 
-### Log Rotation
+### Output File Management
 
-Output files are timestamped: `{session_id}_{timestamp}_FINAL.txt`
+Output files use simple names (overwritten on each run):
+- `script.txt` - Final script
+- `beat_sheet.txt` - Story structure
+- `qa_report.txt` - Quality report
 
-Consider implementing cleanup:
+To preserve previous versions before running again:
 ```bash
-# Example: Delete output files older than 30 days
-find Shows/*/output -name "*.txt" -mtime +30 -delete
+# Archive previous outputs with timestamp
+cd Shows/your_show/output
+if [ -f script.txt ]; then
+    timestamp=$(date +%Y%m%d_%H%M%S)
+    mkdir -p archive
+    mv script.txt archive/script_${timestamp}.txt 2>/dev/null || true
+    mv beat_sheet.txt archive/beat_sheet_${timestamp}.txt 2>/dev/null || true
+    mv qa_report.txt archive/qa_report_${timestamp}.txt 2>/dev/null || true
+fi
 ```
 
 ---

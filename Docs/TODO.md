@@ -555,9 +555,9 @@ ls -la output/
 ```
 
 **Checkpoint:**
-- [ ] `first_test_FINAL.txt` exists (the script)
-- [ ] `first_test_beat_sheet.txt` exists (structure)
-- [ ] `first_test_QA_report.txt` exists (quality assessment)
+- [ ] `script.txt` exists (the script)
+- [ ] `beat_sheet.txt` exists (structure)
+- [ ] `qa_report.txt` exists (quality assessment)
 
 ---
 

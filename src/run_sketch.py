@@ -167,7 +167,6 @@ def save_output(
         Path to main output file.
     """
     output_dir = config.show.output_dir
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
     # Save final script
     final_script = (
@@ -176,7 +175,7 @@ def save_output(
         or state.get("revised_draft")
         or state.get("first_draft", "")
     )
-    script_path = output_dir / f"{session_id}_{timestamp}_FINAL.txt"
+    script_path = output_dir / "script.txt"
 
     if final_script:
         script_path.write_text(final_script, encoding="utf-8")
@@ -185,14 +184,14 @@ def save_output(
     # Save beat sheet
     beat_sheet = state.get("beat_sheet", "")
     if beat_sheet:
-        beat_path = output_dir / f"{session_id}_{timestamp}_beat_sheet.txt"
+        beat_path = output_dir / "beat_sheet.txt"
         beat_path.write_text(beat_sheet, encoding="utf-8")
         logger.info("Saved beat sheet to: %s", beat_path)
 
     # Save QA report
     qa_report = state.get("qa_report", {})
     if qa_report:
-        qa_path = output_dir / f"{session_id}_{timestamp}_QA_report.txt"
+        qa_path = output_dir / "qa_report.txt"
         qa_content = qa_report.get("content", str(qa_report))
         qa_path.write_text(qa_content, encoding="utf-8")
         logger.info("Saved QA report to: %s", qa_path)

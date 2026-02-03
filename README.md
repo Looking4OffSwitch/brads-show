@@ -526,7 +526,7 @@ YOUR TURN: Final decision?
 
 [A]pprove for Production  [R]equest Revision: A
 
-✅ APPROVED! Script saved to: output/tech_support_er_FINAL.txt
+✅ APPROVED! Script saved to: output/script.txt
 ```
 
 #### Step 8: Get Your Script
@@ -537,9 +537,9 @@ YOUR TURN: Final decision?
 ═══════════════════════════════════════════════════════
 
 Final script saved to:
-  📄 output/tech_support_er_FINAL.txt (production script)
-  📄 output/tech_support_er_beat_sheet.txt (reference)
-  📄 output/tech_support_er_QA_report.txt (quality assessment)
+  📄 output/script.txt (production script)
+  📄 output/beat_sheet.txt (reference)
+  📄 output/qa_report.txt (quality assessment)
 
 Stats:
   Total time: 47 minutes
@@ -839,9 +839,9 @@ sketch-comedy-agents/
 │       └── checkpoints.py       # Human checkpoint handlers
 │
 ├── output/                      # Generated sketches (gitignored)
-│   ├── sketch_001_FINAL.txt
-│   ├── sketch_001_beat_sheet.txt
-│   └── sketch_001_QA_report.txt
+│   ├── script.txt              # Final production script
+│   ├── beat_sheet.txt          # Story structure reference
+│   └── qa_report.txt           # Quality assessment
 │
 ├── tests/                       # Unit tests
 │   ├── test_agents.py
