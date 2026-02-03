@@ -172,6 +172,16 @@ def temp_project_dir(
         docs_dir.mkdir()
         (docs_dir / "agent-prompts.md").write_text("# Agent Prompts\nTest content")
 
+        # Create config/agents directory with all agent markdown files
+        config_dir = root / "config" / "agents"
+        config_dir.mkdir(parents=True)
+
+        # Copy ALL agent markdown files from the real config directory
+        real_agents_dir = Path(__file__).parent.parent / "config" / "agents"
+        if real_agents_dir.exists():
+            for agent_file in real_agents_dir.glob("*.md"):
+                (config_dir / agent_file.name).write_text(agent_file.read_text())
+
         yield root
 
 
@@ -218,12 +228,21 @@ def mock_config(
     temp_project_dir: Path,
 ) -> Config:
     """Create a complete mock configuration."""
+    # Initialize agent_loader if config/agents exists
+    from src.config.agent_loader import AgentLoader
+
+    agents_dir = temp_project_dir / "config" / "agents"
+    agent_loader = None
+    if agents_dir.exists():
+        agent_loader = AgentLoader(agents_dir)
+
     return Config(
         llm=mock_llm_config,
         workflow=mock_workflow_config,
         show=mock_show_config,
         project_root=temp_project_dir,
         debug=True,
+        agent_loader=agent_loader,
     )
 
 

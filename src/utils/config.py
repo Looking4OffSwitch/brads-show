@@ -98,6 +98,9 @@ class Config:
     project_root: Path
     debug: bool = False
 
+    # Optional agent loader for markdown-based agent configs
+    agent_loader: Optional[any] = None  # Will be src.config.agent_loader.AgentLoader
+
     # Optional monitoring configuration
     langsmith_enabled: bool = False
     langsmith_api_key: Optional[str] = None
@@ -310,6 +313,22 @@ def load_config(
         output_dir=output_dir,
     )
 
+    # Initialize agent loader for markdown-based configs
+    agents_dir = project_root / "config" / "agents"
+    agent_loader = None
+    if agents_dir.exists():
+        try:
+            # Import here to avoid circular dependency
+            from src.config.agent_loader import AgentLoader
+
+            agent_loader = AgentLoader(agents_dir)
+            logger.debug("Initialized agent loader from: %s", agents_dir)
+        except Exception as e:
+            logger.warning("Could not initialize agent loader: %s", e)
+            # Continue without agent_loader - agents will use hardcoded prompts
+    else:
+        logger.debug("Agent config directory not found: %s (using hardcoded prompts)", agents_dir)
+
     # Check for LangSmith monitoring
     langsmith_enabled = os.getenv("LANGCHAIN_TRACING_V2", "").lower() == "true"
     langsmith_key = os.getenv("LANGCHAIN_API_KEY")
@@ -326,6 +345,7 @@ def load_config(
         show=show_config,
         project_root=project_root,
         debug=debug,
+        agent_loader=agent_loader,
         langsmith_enabled=langsmith_enabled,
         langsmith_api_key=langsmith_key,
         langsmith_project=langsmith_project,

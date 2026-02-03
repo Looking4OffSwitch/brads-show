@@ -65,9 +65,23 @@ brads_show/
 │       ├── creative_prompt.md # Sketch idea (edit each time)
 │       ├── write.sh          <- ENTRY POINT for writing
 │       └── output/           # Finished scripts
+├── config/                   # Agent configuration (Brad can edit!)
+│   └── agents/               # Agent definitions in markdown
+│       ├── showrunner.md
+│       ├── head_writer.md
+│       ├── senior_writer_a.md
+│       ├── senior_writer_b.md
+│       ├── staff_writer_a.md
+│       ├── staff_writer_b.md
+│       ├── story_editor.md
+│       ├── research.md
+│       ├── script_coordinator.md
+│       └── qa.md
 ├── new-show.sh              <- Creates new shows
 ├── QUICK_START.md           <- Brad's guide
 ├── src/                     # Agent code (Reed's domain)
+│   ├── agents/              # Simplified agent classes (~40 lines each)
+│   └── config/              # Configuration loaders and validation
 └── tests/                   # Test suite
 ```
 
@@ -111,6 +125,68 @@ black src/ tests/
 
 All code **must** adhere to modern Python software engineering practices: DRY, encapsulation, abstraction, rigorous error checking, parameter validation, verbose logging, and code readability.
 
+## Agent Configuration Architecture
+
+**NEW as of February 2026:** Agent definitions have been externalized from Python code to markdown configuration files. This allows non-technical users (Brad) to modify agent behaviors, prompts, and personalities without editing Python code.
+
+### Configuration File Structure
+
+Each agent is defined in `config/agents/[agent_name].md` with:
+
+```markdown
+---
+# YAML Frontmatter - Structured Metadata
+role: showrunner
+tier: creative  # creative or support
+model: claude-sonnet-4-20250514
+authority: final  # final, high, medium-high, medium, advisory
+description: "Agent's role summary"
+
+collaborators:
+  reports_to: null
+  works_with:
+    head_writer: "Collaboration description"
+
+tasks:
+  select_pitch:
+    output_format: structured
+    required_sections: [decision, rationale, creative_direction]
+
+principles:
+  - "Principle 1"
+  - "Principle 2"
+---
+
+# Agent Name
+
+## System Prompt
+
+[Agent's identity, expertise, responsibilities, authority]
+
+## Task Instructions
+
+### task_name
+
+[Specific instructions for this task]
+```
+
+### Loading Process
+
+1. `src/config/agent_loader.py` parses markdown files
+2. `src/config/validation.py` validates YAML schema and structure
+3. Agents load prompts dynamically at runtime via `AgentLoader`
+4. Changes to markdown files take effect immediately (no code restart needed)
+5. Configuration errors are caught on startup with helpful messages
+
+### How to Modify Agents
+
+1. **Edit prompts:** Modify the `## System Prompt` or `### task_name` sections
+2. **Add principles:** Update the `principles` list in YAML frontmatter
+3. **Change authority:** Modify `authority` field (rarely needed)
+4. **Validate:** Run `./Shows/test_show/write.sh --dry-run` to check syntax
+
+**Python code reduced:** Agent classes went from ~260 lines to ~40 lines each (84% reduction).
+
 ## Architecture
 
 ### The 10 Agents
@@ -144,13 +220,34 @@ All code **must** adhere to modern Python software engineering practices: DRY, e
 | `Shows/<show>/creative_prompt.md` | Sketch idea (edit each session) |
 | `Shows/<show>/write.sh` | Run the AI writers |
 
+### Agent Configuration Files (Brad can edit these!)
+| File | Purpose |
+|------|---------|
+| `config/agents/showrunner.md` | Showrunner agent system prompts and task instructions |
+| `config/agents/head_writer.md` | Head Writer agent prompts (6 tasks) |
+| `config/agents/senior_writer_a.md` | Senior Writer A prompts (premise/character expert) |
+| `config/agents/senior_writer_b.md` | Senior Writer B prompts (dialogue/jokes expert) |
+| `config/agents/staff_writer_a.md` | Staff Writer A prompts (high-energy pitcher) |
+| `config/agents/staff_writer_b.md` | Staff Writer B prompts (structure expert) |
+| `config/agents/story_editor.md` | Story Editor prompts (continuity guardian) |
+| `config/agents/research.md` | Research agent prompts (facts/references) |
+| `config/agents/script_coordinator.md` | Script Coordinator prompts (formatting) |
+| `config/agents/qa.md` | QA agent prompts (final validation) |
+
+**Each agent file contains:**
+- **YAML frontmatter** (metadata: role, tier, model, authority, tasks, principles)
+- **## System Prompt** section (agent's identity and expertise)
+- **## Task Instructions** sections (task-specific instructions)
+
+**To modify an agent:** Open the `.md` file, edit the System Prompt or Task Instructions sections. Changes take effect immediately on next run. YAML frontmatter should rarely need changes.
+
 ### System Files
 | File | Purpose |
 |------|---------|
 | `QUICK_START.md` | Brad's quick start guide |
 | `new-show.sh` | Creates new show folders |
-| `Docs/agent-prompts.md` | System prompts for all 10 agents |
 | `Docs/langgraph-workflow.md` | Workflow architecture details |
+| `Docs/agent-prompts.md` | **DEPRECATED** - Agent prompts now in `config/agents/` |
 
 ## Environment Variables
 

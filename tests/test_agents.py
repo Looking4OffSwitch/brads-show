@@ -332,15 +332,26 @@ class TestShowrunnerAgent:
         assert "APPROVAL" in instructions or "APPROVED" in instructions
 
     def test_unknown_task_type(self, mock_config: Config, mock_llm):
-        """Test Showrunner with unknown task type."""
+        """Test Showrunner with unknown task type raises ConfigurationError."""
+        from src.config.validation import ConfigurationError
+
         agent = ShowrunnerAgent(mock_config, mock_llm)
         context = AgentContext(
             show_bible="bible",
             creative_prompt="prompt",
             task_type="unknown_task",
         )
-        instructions = agent.get_task_instructions("unknown_task", context)
-        assert "unknown_task" in instructions
+
+        # With agent_loader, unknown tasks raise ConfigurationError
+        if agent.agent_loader:
+            with pytest.raises(ConfigurationError) as exc_info:
+                agent.get_task_instructions("unknown_task", context)
+            assert "unknown_task" in str(exc_info.value)
+            assert "not found" in str(exc_info.value)
+        else:
+            # Fallback behavior for agents without agent_loader
+            instructions = agent.get_task_instructions("unknown_task", context)
+            assert "unknown_task" in instructions
 
 
 class TestHeadWriterAgent:
@@ -579,7 +590,7 @@ class TestAgentExecution:
         context = AgentContext(
             show_bible="# Bible",
             creative_prompt="# Prompt",
-            task_type="generate_pitch",
+            task_type="generate_pitches",
         )
 
         output = await agent.execute(context)
@@ -605,7 +616,7 @@ class TestAgentExecution:
         context = AgentContext(
             show_bible="# Bible",
             creative_prompt="# Prompt",
-            task_type="gather_references",
+            task_type="validate_pitches",
         )
 
         output = await agent.execute(context)
@@ -630,7 +641,7 @@ class TestAgentExecution:
         context = AgentContext(
             show_bible="# Bible",
             creative_prompt="# Prompt",
-            task_type="generate_pitch",
+            task_type="generate_pitches",
         )
 
         output_a = await agent_a.execute(context)

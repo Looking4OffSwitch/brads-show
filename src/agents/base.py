@@ -9,7 +9,6 @@ Provides abstract base class with common functionality for all 10 agents:
 """
 
 import logging
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Optional
@@ -102,7 +101,7 @@ class AgentOutput:
         return f"AgentOutput({self.agent_role.value}, {self.task_type}, {status})"
 
 
-class BaseAgent(ABC):
+class BaseAgent:
     """
     Abstract base class for all agents in the sketch comedy system.
 
@@ -122,6 +121,7 @@ class BaseAgent(ABC):
         role: AgentRole,
         config: Config,
         llm: Optional[LLMInterface] = None,
+        agent_loader: Optional[Any] = None,
     ) -> None:
         """
         Initialize base agent.
@@ -130,16 +130,25 @@ class BaseAgent(ABC):
             role: The agent's role in the system.
             config: System configuration.
             llm: Optional LLM interface. If None, creates one from config.
+            agent_loader: Optional AgentLoader for loading prompts from markdown.
+                         If None and config has agent_loader, uses that.
+                         If still None, falls back to get_system_prompt() abstract method.
         """
         self.role = role
         self.config = config
         self.llm = llm or get_llm(config)
         self.model_tier = AGENT_MODEL_TIERS.get(role, ModelTier.SUPPORT)
 
+        # Set up agent loader - supports multiple sources
+        self.agent_loader = agent_loader
+        if self.agent_loader is None and hasattr(config, "agent_loader"):
+            self.agent_loader = config.agent_loader
+
         logger.info(
-            "Initialized %s agent (tier: %s)",
+            "Initialized %s agent (tier: %s, loader: %s)",
             role.value,
             self.model_tier.value,
+            "markdown" if self.agent_loader else "hardcoded",
         )
 
     @property
@@ -147,7 +156,6 @@ class BaseAgent(ABC):
         """Human-readable name for this agent."""
         return self.role.value.replace("_", " ").title()
 
-    @abstractmethod
     def get_system_prompt(self) -> str:
         """
         Get the system prompt for this agent.
@@ -155,12 +163,21 @@ class BaseAgent(ABC):
         The system prompt defines the agent's identity, expertise,
         responsibilities, and decision authority.
 
+        If agent_loader is configured, loads from markdown file.
+        Otherwise, subclasses must override this method.
+
         Returns:
             Complete system prompt string.
-        """
-        pass
 
-    @abstractmethod
+        Raises:
+            NotImplementedError: If no agent_loader and subclass doesn't override.
+        """
+        if self.agent_loader:
+            return self.agent_loader.get_system_prompt(self.role)
+        raise NotImplementedError(
+            f"{self.__class__.__name__} must implement get_system_prompt() or use agent_loader"
+        )
+
     def get_task_instructions(self, task_type: str, context: AgentContext) -> str:
         """
         Get task-specific instructions for the agent.
@@ -168,14 +185,59 @@ class BaseAgent(ABC):
         Builds the detailed instructions for a specific task type,
         incorporating context from the workflow state.
 
+        If agent_loader is configured, loads from markdown file and
+        substitutes template variables.
+        Otherwise, subclasses must override this method.
+
         Args:
             task_type: The type of task to perform.
             context: Context containing show bible, creative prompt, etc.
 
         Returns:
             Task-specific instruction string.
+
+        Raises:
+            NotImplementedError: If no agent_loader and subclass doesn't override.
         """
-        pass
+        if self.agent_loader:
+            instructions = self.agent_loader.get_task_instructions(self.role, task_type)
+            # Substitute template variables
+            return self._substitute_template_vars(instructions, context)
+        raise NotImplementedError(
+            f"{self.__class__.__name__} must implement get_task_instructions() or use agent_loader"
+        )
+
+    def _substitute_template_vars(self, text: str, context: AgentContext) -> str:
+        """
+        Substitute template variables in text with context values.
+
+        Supports variables like {show_bible}, {creative_prompt}, etc.
+
+        Args:
+            text: Text with template variables
+            context: Context with values to substitute
+
+        Returns:
+            Text with variables substituted
+        """
+        # Currently no template variables are used in the markdown files,
+        # but this method provides the infrastructure for future use
+        replacements = {
+            "{show_bible}": context.show_bible,
+            "{creative_prompt}": context.creative_prompt,
+            "{task_type}": context.task_type,
+        }
+
+        if context.previous_output:
+            replacements["{previous_output}"] = context.previous_output
+        if context.direction_notes:
+            replacements["{direction_notes}"] = context.direction_notes
+
+        result = text
+        for var, value in replacements.items():
+            result = result.replace(var, value)
+
+        return result
 
     def build_prompt(self, context: AgentContext) -> tuple[str, str]:
         """

@@ -1,9 +1,28 @@
 # Agent Prompt Library
-## Complete Prompts for All 10 Agents
+## ⚠️ DEPRECATED - See config/agents/ Instead
 
-**Version:** 1.0  
-**Last Updated:** February 2, 2026  
-**Purpose:** Production-ready prompts for each agent in the sketch comedy system
+**Status:** DEPRECATED as of February 3, 2026
+**Replacement:** All agent prompts now live in `config/agents/*.md` files
+**Reason:** Agent definitions externalized from Python to markdown for easier editing
+
+---
+
+## 🔄 Migration Notice
+
+This file previously contained all agent system prompts. These prompts are now maintained in individual markdown files:
+
+- **Location:** `config/agents/`
+- **Files:** `showrunner.md`, `head_writer.md`, `senior_writer_a.md`, etc.
+- **Format:** YAML frontmatter + Markdown sections
+- **Benefits:** Direct editing by non-technical users, validation on load, clear error messages
+
+**To modify agent behavior:** Edit the markdown files in `config/agents/` instead of this file.
+
+---
+
+## Historical Reference
+
+This file is preserved for historical reference only. The content below reflects the agent prompts as they existed when hardcoded in Python (before February 2026).
 
 ---
 
