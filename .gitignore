@@ -25,4 +25,7 @@ uv.lock
 htmlcov/
 
 # Misc
-REED.mdShows/
+REED.md
+
+# Show outputs (test data, not source controlled)
+Shows/
