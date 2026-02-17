@@ -359,6 +359,8 @@ def main() -> int:
             show_folder=args.show,
             debug=args.debug,
         )
+        # Persist show folder in env so workflow nodes can reload config correctly
+        os.environ["SHOW_FOLDER"] = config.show.show_folder
         display_success(f"Configuration loaded for show: {config.show.show_folder}")
 
         # Dry run check
