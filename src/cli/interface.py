@@ -212,11 +212,12 @@ def display_token_usage(usage: dict[str, int]) -> None:
     Args:
         usage: Token usage dictionary.
     """
+    total = usage.get("total_tokens", 0)
     print()
     print(_color("Token Usage:", "dim"))
     print(f"  Prompt tokens:     {usage.get('prompt_tokens', 0):,}")
     print(f"  Completion tokens: {usage.get('completion_tokens', 0):,}")
-    print(f"  Total tokens:      {usage.get('total_tokens', 0):,}")
+    print(f"  Total tokens:      {total:,}")
     print()
 
 
@@ -328,10 +329,27 @@ def prompt_selection(
         return [0]
 
 
+def _format_elapsed(seconds: float) -> str:
+    """
+    Format elapsed seconds into a human-readable string.
+
+    Args:
+        seconds: Elapsed time in seconds.
+
+    Returns:
+        Formatted time string (e.g. "2m 34s" or "47s").
+    """
+    minutes, secs = divmod(int(seconds), 60)
+    if minutes > 0:
+        return f"{minutes}m {secs}s"
+    return f"{secs}s"
+
+
 def display_workflow_complete(
     session_id: str,
     output_path: str,
     token_usage: dict[str, int],
+    elapsed_seconds: float = 0.0,
 ) -> None:
     """
     Display workflow completion message.
@@ -340,11 +358,19 @@ def display_workflow_complete(
         session_id: Session identifier.
         output_path: Path to output file.
         token_usage: Final token usage stats.
+        elapsed_seconds: Total wall-clock time for the workflow run.
     """
     display_header("WORKFLOW COMPLETE")
 
     display_success(f"Session: {session_id}")
     display_success(f"Output saved to: {output_path}")
+
+    if elapsed_seconds > 0:
+        display_success(f"Total run time: {_format_elapsed(elapsed_seconds)}")
+
+    total_tokens = token_usage.get("total_tokens", 0)
+    if total_tokens > 0:
+        display_success(f"Total tokens used: {total_tokens:,}")
 
     display_token_usage(token_usage)
 

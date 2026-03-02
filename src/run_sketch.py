@@ -7,6 +7,7 @@ Usage:
     python run_sketch.py --session "sketch_001" # Resume or name session
     python run_sketch.py --debug                # Enable debug logging
     python run_sketch.py --mock-checkpoints     # Auto-approve human checkpoints
+    python run_sketch.py --model claude-opus-4-6 # Override model for all agents
     python run_sketch.py --stage pitch_session  # Run single stage only
     python run_sketch.py --help                 # Show help
 """
@@ -41,6 +42,7 @@ import argparse
 import asyncio
 import logging
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -85,6 +87,7 @@ Examples:
     %(prog)s --session my_sketch       Name or resume a session
     %(prog)s --debug                   Enable debug logging
     %(prog)s --mock-checkpoints        Skip human reviews (for testing)
+    %(prog)s --model claude-opus-4-6   Override model for all agents
     %(prog)s --show another_show       Use different show folder
         """,
     )
@@ -128,6 +131,13 @@ Examples:
         ],
         default=None,
         help="Run only a specific stage (for testing)",
+    )
+
+    parser.add_argument(
+        "--model",
+        type=str,
+        default=None,
+        help="Override model for all agents (e.g. claude-sonnet-4-6)",
     )
 
     parser.add_argument(
@@ -352,6 +362,12 @@ def main() -> int:
     # Setup logging
     setup_logging(args.debug)
 
+    # Apply model override before config loads from env vars
+    if args.model:
+        logger.info("Applying --model override: %s for all agents", args.model)
+        os.environ["ANTHROPIC_MODEL_CREATIVE"] = args.model
+        os.environ["ANTHROPIC_MODEL_SUPPORT"] = args.model
+
     try:
         # Load configuration
         display_info("Loading configuration...")
@@ -363,6 +379,12 @@ def main() -> int:
         os.environ["SHOW_FOLDER"] = config.show.show_folder
         display_success(f"Configuration loaded for show: {config.show.show_folder}")
 
+        # Always display which models are in use
+        if config.llm.creative_model == config.llm.support_model:
+            display_info(f"Model: {config.llm.creative_model} (all agents)")
+        else:
+            display_info(f"Models: {config.llm.creative_model} (creative), {config.llm.support_model} (support)")
+
         # Dry run check
         if args.dry_run:
             display_success("Dry run successful - configuration is valid")
@@ -371,7 +393,8 @@ def main() -> int:
         # Generate session ID
         session_id = args.session or f"sketch_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
-        # Run workflow
+        # Run workflow with timing
+        start_time = time.monotonic()
         final_state = asyncio.run(
             run_workflow(
                 config=config,
@@ -380,6 +403,7 @@ def main() -> int:
                 single_stage=args.stage,
             )
         )
+        elapsed_seconds = time.monotonic() - start_time
 
         # Display any errors
         errors = final_state.get("error_log", [])
@@ -391,7 +415,7 @@ def main() -> int:
 
         # Display completion
         token_usage = final_state.get("token_usage", {})
-        display_workflow_complete(session_id, output_path, token_usage)
+        display_workflow_complete(session_id, output_path, token_usage, elapsed_seconds)
 
         return 0
 

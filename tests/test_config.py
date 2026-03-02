@@ -35,7 +35,7 @@ class TestLLMConfig:
             provider="anthropic",
             api_key="sk-ant-test-key",
             creative_model="claude-sonnet-4-20250514",
-            support_model="claude-3-5-haiku-20241022",
+            support_model="claude-haiku-4-5-20251001",
         )
         assert config.provider == "anthropic"
         assert config.api_key == "sk-ant-test-key"
@@ -60,7 +60,7 @@ class TestLLMConfig:
                 provider="anthropic",
                 api_key="",
                 creative_model="claude-sonnet-4-20250514",
-                support_model="claude-3-5-haiku-20241022",
+                support_model="claude-haiku-4-5-20251001",
             )
 
     def test_missing_creative_model_raises_error(self):
@@ -70,7 +70,7 @@ class TestLLMConfig:
                 provider="anthropic",
                 api_key="test-key",
                 creative_model="",
-                support_model="claude-3-5-haiku-20241022",
+                support_model="claude-haiku-4-5-20251001",
             )
 
     def test_missing_support_model_raises_error(self):
@@ -82,6 +82,35 @@ class TestLLMConfig:
                 creative_model="claude-sonnet-4-20250514",
                 support_model="",
             )
+
+    def test_single_model_override(self):
+        """Test that both tiers can use the same model (for --model override)."""
+        override_model = "claude-sonnet-4-6"
+        config = LLMConfig(
+            provider="anthropic",
+            api_key="sk-ant-test-key",
+            creative_model=override_model,
+            support_model=override_model,
+        )
+        assert config.creative_model == override_model
+        assert config.support_model == override_model
+        assert config.creative_model == config.support_model
+
+
+class TestModelOverrideEnvVars:
+    """Tests for model override via environment variables."""
+
+    def test_env_var_override_applies_to_both_tiers(self, temp_project_dir, monkeypatch):
+        """Test that setting both model env vars to the same value propagates to config."""
+        override_model = "claude-sonnet-4-6"
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-12345")
+        monkeypatch.setenv("ANTHROPIC_MODEL_CREATIVE", override_model)
+        monkeypatch.setenv("ANTHROPIC_MODEL_SUPPORT", override_model)
+
+        with patch("src.utils.config._get_project_root", return_value=temp_project_dir):
+            config = load_config(show_folder="test_show")
+            assert config.llm.creative_model == override_model
+            assert config.llm.support_model == override_model
 
 
 class TestWorkflowConfig:
@@ -164,48 +193,32 @@ class TestLoadConfig:
 
     def test_load_config_from_temp_dir(self, temp_project_dir: Path, monkeypatch):
         """Test loading configuration from temporary directory."""
-        # Set environment variables for the test
         monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-12345")
         monkeypatch.setenv("SHOW_FOLDER", "test_show")
 
-        # Change to temp dir and load config
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(temp_project_dir)
+        with patch("src.utils.config._get_project_root", return_value=temp_project_dir):
             config = load_config(show_folder="test_show")
 
             assert config.llm.provider == "anthropic"
             assert config.show.show_folder == "test_show"
             assert "Test Show" in config.show.show_bible
             assert "tech support" in config.show.creative_prompt.lower()
-        finally:
-            os.chdir(original_cwd)
 
     def test_load_config_with_show_folder_override(self, temp_project_dir: Path, monkeypatch):
         """Test loading config with show_folder parameter override."""
-        # Set environment variables for the test
         monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-12345")
 
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(temp_project_dir)
+        with patch("src.utils.config._get_project_root", return_value=temp_project_dir):
             config = load_config(show_folder="test_show")
             assert config.show.show_folder == "test_show"
-        finally:
-            os.chdir(original_cwd)
 
     def test_load_config_nonexistent_show_raises_error(self, temp_project_dir: Path, monkeypatch):
         """Test that nonexistent show folder raises error."""
-        # Set environment variables for the test
         monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-12345")
 
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(temp_project_dir)
+        with patch("src.utils.config._get_project_root", return_value=temp_project_dir):
             with pytest.raises(ConfigurationError, match="Show folder not found"):
                 load_config(show_folder="nonexistent_show")
-        finally:
-            os.chdir(original_cwd)
 
     def test_load_config_missing_env_raises_error(self):
         """Test that missing environment variables raises error."""
@@ -235,16 +248,11 @@ class TestLoadConfig:
 
     def test_load_config_debug_mode(self, temp_project_dir: Path, monkeypatch):
         """Test loading config with debug mode enabled."""
-        # Set environment variables for the test
         monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-12345")
 
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(temp_project_dir)
+        with patch("src.utils.config._get_project_root", return_value=temp_project_dir):
             config = load_config(show_folder="test_show", debug=True)
             assert config.debug is True
-        finally:
-            os.chdir(original_cwd)
 
 
 class TestGetAgentPromptsPath:

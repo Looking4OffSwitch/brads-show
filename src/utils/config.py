@@ -187,7 +187,7 @@ def _detect_llm_provider() -> tuple[str, str, str, str]:
     anthropic_key = os.getenv("ANTHROPIC_API_KEY")
     if anthropic_key:
         creative = os.getenv("ANTHROPIC_MODEL_CREATIVE", "claude-sonnet-4-20250514")
-        support = os.getenv("ANTHROPIC_MODEL_SUPPORT", "claude-3-5-haiku-20241022")
+        support = os.getenv("ANTHROPIC_MODEL_SUPPORT", "claude-haiku-4-5-20251001")
         logger.info("Using Anthropic provider")
         return ("anthropic", anthropic_key, creative, support)
 

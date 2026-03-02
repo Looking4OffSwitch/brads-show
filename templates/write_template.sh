@@ -5,6 +5,7 @@
 # Usage:
 #   ./write.sh                    Start the writing process
 #   ./write.sh --mock-checkpoints Auto-approve all checkpoints (for testing)
+#   ./write.sh --model <name>     Use a specific model for all agents
 #   ./write.sh --dry-run          Check setup without running
 #   ./write.sh --debug            Show detailed logs
 #
