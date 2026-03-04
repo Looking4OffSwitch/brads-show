@@ -192,7 +192,7 @@ def mock_llm_config() -> LLMConfig:
         provider="anthropic",
         api_key="test-api-key-12345",
         creative_model="claude-sonnet-4-20250514",
-        support_model="claude-3-5-haiku-20241022",
+        support_model="claude-haiku-4-5-20251001",
     )
 
 

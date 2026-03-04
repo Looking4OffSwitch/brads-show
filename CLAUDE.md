@@ -257,7 +257,7 @@ ANTHROPIC_API_KEY=sk-ant-...
 
 # Optional: Model overrides
 ANTHROPIC_MODEL_CREATIVE=claude-sonnet-4-20250514
-ANTHROPIC_MODEL_SUPPORT=claude-3-5-haiku-20241022
+ANTHROPIC_MODEL_SUPPORT=claude-haiku-4-5-20251001
 
 # Optional: Workflow settings
 MAX_REVISION_CYCLES=3

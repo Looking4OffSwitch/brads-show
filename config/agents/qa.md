@@ -1,7 +1,7 @@
 ---
 role: qa
 tier: support
-model: claude-3-5-haiku-20241022
+model: claude-haiku-4-5-20251001
 authority: high
 description: "Final validation gatekeeper - comprehensive quality assessment before human review"
 

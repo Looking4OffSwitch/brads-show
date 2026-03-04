@@ -316,6 +316,10 @@ venv\Scripts\activate  # Windows
 # Run the system
 python run_sketch.py
 
+# Override model for all agents (by default, creative agents use Sonnet and support agents use Haiku)
+python run_sketch.py --model claude-sonnet-4-6
+python run_sketch.py --model claude-opus-4-6      # highest quality
+
 # Follow prompts:
 # 1. System loads show_bible.md and creative_prompt.md
 # 2. Stage 1 executes (pitch generation)
@@ -1220,6 +1224,10 @@ python run_sketch.py --debug --session "test_001"
 
 # Run specific stage only (for testing)
 python run_sketch.py --stage pitch_session --mock-checkpoints
+
+# Override model for all agents (by default, creative agents use Sonnet and support agents use Haiku)
+python run_sketch.py --model claude-sonnet-4-6
+python run_sketch.py --model claude-opus-4-6      # highest quality
 
 # Run with custom config
 python run_sketch.py --show-bible custom_bible.md --prompt custom_prompt.md

@@ -102,6 +102,7 @@ When complete, your script appears in `Shows/your_show/output/` with:
 |------|---------|
 | Create new show | `./new-show.sh "Show Name"` |
 | Write a sketch | `cd Shows/your_show && ./write.sh` |
+| Use a specific model | `./write.sh --model claude-sonnet-4-6` or `--model claude-opus-4-6` for highest quality (by default, creative agents use Sonnet and support agents use Haiku) |
 | Test without approvals | `./write.sh --mock-checkpoints` |
 | Validate setup | `./write.sh --dry-run` |
 | See all options | `./write.sh --help` |
